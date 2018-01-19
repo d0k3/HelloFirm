@@ -18,18 +18,16 @@ include $(DEVKITARM)/ds_rules
 #---------------------------------------------------------------------------------
 export TARGET	:=	HelloFirm
 BUILD		:=	build
-SOURCES		:=	source
+SOURCES		:=	source source/common
 DATA		:=	data
-INCLUDES	:=	source
-
+INCLUDES	:=	source source/common
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-mthumb -mthumb-interwork -flto
 
-CFLAGS	:=	-g -Wall -Wextra -Wpedantic -Wno-main -O2\
-			-march=armv5te -mtune=arm946e-s -fomit-frame-pointer\
-			-ffast-math -std=gnu99\
+CFLAGS	:=	-g -Wall -Wextra -Wpedantic -Wcast-align -Wno-main -O2\
+			-march=armv5te -mtune=arm946e-s -fomit-frame-pointer -ffast-math -std=gnu11\
 			$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM9
@@ -93,24 +91,27 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-.PHONY: common clean all firm inary
+.PHONY: common clean all binary firm
 
 #---------------------------------------------------------------------------------
-all: firm
+all: binary firm
 
 common:
 	@[ -d $(OUTPUT_D) ] || mkdir -p $(OUTPUT_D)
 	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
 
+submodules:
+	@-git submodule update --init --recursive
+
 binary: common
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-firm: binary
-	@firmtool build $(OUTPUT).firm -n 0x23F00000 -e 0 -D $(OUTPUT).bin -A 0x23F00000 -C NDMA -i
-
+firm:
+	@firmtool build $(OUTPUT).firm -D $(OUTPUT).elf -C NDMA -i
+	@echo Firm payload built
 #---------------------------------------------------------------------------------
 clean:
-	@echo clean ...
+	@echo clean $(TARGET)...
 	@rm -fr $(BUILD) $(OUTPUT_D) $(RELEASE)
 
 
@@ -122,18 +123,17 @@ DEPENDS	:=	$(OFILES:.o=.d)
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).bin	:	$(OUTPUT).elf
+$(OUTPUT).firm	:	$(OUTPUT).elf
 $(OUTPUT).elf	:	$(OFILES)
 
 
 #---------------------------------------------------------------------------------
-%.bin: %.elf
-	@$(OBJCOPY) --set-section-flags .bss=alloc,load,contents -O binary $< $@
-	@echo built ... $(notdir $@)
-
+%.pbm.o: %.pbm
+	@echo $(notdir $<)
+	@$(bin2o)
+	
 
 -include $(DEPENDS)
-
 
 #---------------------------------------------------------------------------------------
 endif

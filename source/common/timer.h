@@ -13,7 +13,7 @@
 #define TIMER_CNT3  ((vu16*)0x1000300E)
 
 #define TIMER_COUNT_UP  0x0004
-#define TIMER_ACTIVE    0x0080
+#define TIMER_ACTIVE	0x0080
 #define TICKS_PER_SEC   67027964ULL
 
 void timer_start( void );

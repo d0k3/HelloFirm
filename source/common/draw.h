@@ -13,8 +13,8 @@
 
 #define RGB(r,g,b) (b<<16|g<<8|r)
 
-#define COLOR_BLACK         RGB(0x00, 0x00, 0x00)
-#define COLOR_WHITE         RGB(0xFF, 0xFF, 0xFF)
+#define COLOR_BLACK		 RGB(0x00, 0x00, 0x00)
+#define COLOR_WHITE		 RGB(0xFF, 0xFF, 0xFF)
 #define COLOR_TRANSPARENT   RGB(0xFF, 0x00, 0xEF) // otherwise known as 'super fuchsia'
 #define COLOR_GREEN 		RGB(0x00, 0xFF, 0x00)
 
